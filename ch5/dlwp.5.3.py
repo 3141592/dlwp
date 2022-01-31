@@ -64,8 +64,8 @@ import matplotlib.pyplot as plt
 val_loss = history_small_model.history["val_loss"]
 val_acc = history_small_model.history["val_accuracy"]
 epochs = range(1, 21)
-#plt.plot(epochs, val_acc, "b-", label="val acc")
-#plt.plot(epochs, val_loss, "b--", label="val loss")
+plt.plot(epochs, val_acc, "b-", label="val acc")
+plt.plot(epochs, val_loss, "b--", label="val loss")
 plt.title("Effect of insufficient model capacity on validation curve")
 plt.xlabel("Epochs")
 plt.ylabel("Loss")
@@ -92,7 +92,7 @@ val_loss2 = history_large_model.history["val_loss"]
 val_acc2 = history_large_model.history["val_accuracy"]
 epochs = range(1, 21)
 plt.title("Validation loss for a model with appropriate capacity")
-#plt.plot(epochs, val_acc2, "g-", label="large acc")
+plt.plot(epochs, val_acc2, "g-", label="large acc")
 plt.plot(epochs, val_loss2, "g--", label="large loss")
 plt.legend()
 plt.show()
