@@ -3,6 +3,7 @@
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.datasets import imdb
+from tqdm.keras import TqdmCallback
 import numpy as np
 
 (train_data, train_labels), _ = imdb.load_data(num_words=10000)
@@ -16,6 +17,7 @@ def vectorize_sequences(sequences, dimension=10000):
 train_data = vectorize_sequences(train_data)
 print(f"train_data[0]: {train_data[0]}")
 
+print("Starting original model")
 model = keras.Sequential([
     layers.Dense(16, activation="relu"),
     layers.Dense(16, activation="relu"),
@@ -32,6 +34,7 @@ history_original = model.fit(
         validation_split=0.4)
 
 # Listing 5.11 Version of the model with lower capacity
+print("Starting small model")
 model = keras.Sequential([
     layers.Dense(4, activation="relu"),
     layers.Dense(4, activation="relu"),
@@ -48,6 +51,7 @@ history_smaller_model = model.fit(
         validation_split=0.4)
 
 # Listing 5.12 Version of the model with higher capacity
+print("Starting high capacityy model")
 model = keras.Sequential([
     layers.Dense(512, activation="relu"),
     layers.Dense(512, activation="relu"),
@@ -65,6 +69,7 @@ history_larger_model = model.fit(
 
 # Listing 5.13 Adding L2 weight regularization to the model
 from tensorflow.keras import regularizers
+print("Starting L2 model")
 model = keras.Sequential([
     layers.Dense(16, kernel_regularizer=regularizers.l2(0.002), activation="relu"),
     layers.Dense(16, kernel_regularizer=regularizers.l2(0.002), activation="relu"),
@@ -81,6 +86,7 @@ history_l2_reg = model.fit(
         validation_split=0.4)
 
 # L1
+print("Starting L1 model")
 model = keras.Sequential([
     layers.Dense(16, kernel_regularizer=regularizers.l1(0.001), activation="relu"),
     layers.Dense(16, kernel_regularizer=regularizers.l1(0.001), activation="relu"),
@@ -96,7 +102,8 @@ history_l1_reg = model.fit(
         batch_size=512,
         validation_split=0.4)
 
-# L2
+# L1_L2
+print("Starting L1_L2 model")
 model = keras.Sequential([
     layers.Dense(16, kernel_regularizer=regularizers.l1_l2(l1=0.001, l2=0.001), activation="relu"),
     layers.Dense(16, kernel_regularizer=regularizers.l1_l2(l1=0.001, l2=0.001), activation="relu"),
@@ -110,6 +117,25 @@ history_l1_l2_reg = model.fit(
         train_labels,
         epochs=20,
         batch_size=512,
+        validation_split=0.4)
+
+# Listing 5.15 Adding dropout to the IMDB model
+print("Starting dropout model")
+model = keras.Sequential([
+    layers.Dense(16, activation="relu"),
+    layers.Dropout(0.5),
+    layers.Dense(16, activation="relu"),
+    layers.Dropout(0.5),
+    layers.Dense(1, activation="sigmoid")
+])
+model.compile(optimizer="rmsprop",
+        loss="binary_crossentropy",
+        metrics=["accuracy"])
+history_dropout = model.fit(
+        train_data,
+        train_labels,
+        epochs=20,
+        batch_size=1,
         validation_split=0.4)
 
 # Figure 5.17/5.18
@@ -126,7 +152,7 @@ plt.plot(epochs, val_loss, "b-", label="val loss smaller")
 
 # history_larger_model
 val_loss = history_larger_model.history["val_loss"]
-plt.plot(epochs, val_loss, "r-", label="val loss larger")
+#plt.plot(epochs, val_loss, "r-", label="val loss larger")
 
 # history_l2_reg
 val_loss = history_l2_reg.history["val_loss"]
@@ -139,6 +165,10 @@ plt.plot(epochs, val_loss, "g-", label="val loss l1 reg")
 # history_l1_l2_reg
 val_loss = history_l1_l2_reg.history["val_loss"]
 plt.plot(epochs, val_loss, "g--", label="val loss l1_l2 reg")
+
+# history_dropout
+val_loss = history_dropout.history["val_loss"]
+plt.plot(epochs, val_loss, "r--", label="val loss dropout")
 
 plt.title("Original vs. smaller vs. larger vs. l2 reg on IMDB review classification")
 plt.xlabel("Epochs")
