@@ -49,5 +49,6 @@ model.build()
 print("After model.build()...")
 model.summary()
 
+keras.utils.plot_model(model, "functional_api_7_2_1.png")
 
 

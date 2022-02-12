@@ -1,7 +1,6 @@
 # 7.2.1 The Functional API
 #
 # Listing 7.8 A simple Functional model with two Dense layers
-#
 from tensorflow import keras
 from tensorflow.keras import layers
 
@@ -20,7 +19,6 @@ model.summary()
 
 #
 # Listing 7.9 A multi-input, multi-output Functional model
-#
 vocabulary_size = 10000
 num_tags = 10
 num_departments = 4
@@ -48,7 +46,6 @@ model.summary()
 
 #
 # Listing 7.10 Training a model by providing lists of input and target arrays
-#
 import numpy as np
 
 num_samples = 1280
@@ -74,7 +71,6 @@ priority_preds, department_preds = model.predict([title_data, text_body_data, ta
 
 #
 # Listing 7.11 Training a model by providing dicts and targets arrays
-#
 model.compile(optimizer="rmsprop",
         loss={"priority":"mean_squared_error", "department":"categorical_crossentropy"},
         metrics={"priority":["mean_absolute_error"], "department":["accuracy"]})
@@ -85,8 +81,37 @@ model.evaluate({"title": title_data, "text_body": text_body_data, "tags": tags_d
         {"priority": priority_data, "department": department_data})
 priority_preds, department_preds = model.predict({"title": title_data, "text_body": text_body_data, "tags": tags_data})
 
+model.summary()
+
+#
+# Figure 7.3 Model plot with shape information added
+keras.utils.plot_model(model,
+        "7.3.ticket_classifier_with_shape_info.png", 
+        show_shapes=True)
+
+#
+# Listing 7.12 Retrieving the inputs or outputs of a layer in a Functional model
+print(f"model.layers: {model.layers}")
+print(f"model.layers[3].input: {model.layers[3].input}")
+print(f"model.layers[3].output: {model.layers[3].output}")
 
 
+#
+# Listing 7.13 Creating a new model by reusing intermediate layer outputs
+# layers[4] is our intermediate Dense layer
+features = model.layers[4].output
+difficulty = layers.Dense(3, activation="softmax", name="difficulty")(features)
+
+new_model = keras.Model(
+        inputs=[title, text_body, tags],
+        outputs=[priority, department, difficulty])
+
+#
+# Figure 7.4
+new_model.summary()
+keras.utils.plot_model(new_model,
+        "7.4.updated_ticket_classifier.png", 
+        show_shapes=True)
 
 
 
