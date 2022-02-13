@@ -113,10 +113,3 @@ keras.utils.plot_model(new_model,
         "7.4.updated_ticket_classifier.png", 
         show_shapes=True)
 
-
-
-
-
-
-
-
