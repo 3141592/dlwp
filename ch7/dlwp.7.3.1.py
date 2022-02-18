@@ -5,6 +5,7 @@
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.datasets import mnist
+import keras.backend as K
 
 # Create a model (we factor this into a separate function so as to reuse it later).
 def get_mnist_model():
@@ -54,6 +55,7 @@ class RootMeanSquaredError(keras.metrics.Metric):
     def __init__(self, name="rmse", **kwargs):
         super().__init__(name=name, **kwargs)
         self.mse_sum = self.add_weight(name="mse_sum", initializer="zeros")
+        print(f"self.mse_sum.__class__.__name__: {self.mse_sum.__class__.__name__}")
         self.total_samples = self.add_weight(name="total_samples", initializer="zeros", dtype="int32")
 
     # Implement the state update logic in update_state(). The y_true argument
@@ -65,11 +67,16 @@ class RootMeanSquaredError(keras.metrics.Metric):
         y_true = tf.one_hot(y_true, depth=tf.shape(y_pred)[1])
         mse = tf.reduce_sum(tf.square(y_true - y_pred))
         self.mse_sum.assign_add(mse)
+        #K.print_tensor(mse, message='mse = ')
+        #K.print_tensor(self.mse_sum, message='self.mse_sum = ')
         num_samples = tf.shape(y_pred)[0]
+        #K.print_tensor(num_samples, message='num_samples = ')
         self.total_samples .assign_add(num_samples)
 
     def result(self):
-        return tf.sqrt(self.mse_sum / tf.cast(self.total_samples, tf.float32))
+        result = tf.sqrt(self.mse_sum / tf.cast(self.total_samples, tf.float32))
+        #K.print_tensor(result, message='result = ')
+        return result
 
     def reset_state(self):
         self.mse_sum.assign(0.)
