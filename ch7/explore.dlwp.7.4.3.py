@@ -2,7 +2,6 @@
 # Suppress warnings
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-import datetime
 
 #
 # Listing 7.17 The standard workflow: compile(), fit(), evaluate(), predict()
@@ -42,6 +41,15 @@ metrics = [keras.metrics.SparseCategoricalAccuracy()]
 # Prepare a Mean metric tracker to keep track of the avergae loss.
 loss_tracking_metric = keras.metrics.Mean()
 
+# Return list of non-zero elements of tensor
+def check_for_values(input_tensor):
+    for i, element in enumerate(input_tensor):
+        x = element.numpy()
+        #print(f"x[0]: {x[0]}")
+        #print(f"x[0].shape: {x[0].shape}")
+        exit
+
+
 def train_step(inputs, targets):
     # Run the forward pass. Note that we pass training=True.
     with tf.GradientTape() as tape:
@@ -50,6 +58,8 @@ def train_step(inputs, targets):
     # Run the backward pass. Note that we use model.trainable_weights.
     gradients = tape.gradient(loss, model.trainable_weights)
     optimizer.apply_gradients(zip(gradients, model.trainable_weights))
+    #print(f"gradients[0]: {gradients[0]}")
+    check_for_values(gradients)
 
     # Keep track of metrics.
     logs = {}
@@ -77,7 +87,6 @@ training_dataset = training_dataset.batch(32)
 epochs = 3
 for epoch in range(epochs):
     reset_metrics()
-    print(f"Current date and time: {datetime.datetime.now()}")
     for inputs_batch, targets_batch in training_dataset:
         logs = train_step(inputs_batch, targets_batch)
     print(f"Results at the end of epoch {epoch}")

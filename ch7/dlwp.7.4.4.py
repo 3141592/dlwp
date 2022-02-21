@@ -1,4 +1,4 @@
-# 7.4.3 A complete training and evaluation loop
+# 7.4.4 Make it fast with tf.function
 # Suppress warnings
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -42,6 +42,7 @@ metrics = [keras.metrics.SparseCategoricalAccuracy()]
 # Prepare a Mean metric tracker to keep track of the avergae loss.
 loss_tracking_metric = keras.metrics.Mean()
 
+@tf.function
 def train_step(inputs, targets):
     # Run the forward pass. Note that we pass training=True.
     with tf.GradientTape() as tape:
@@ -85,7 +86,8 @@ for epoch in range(epochs):
         print(f"...{key}: {value:.4f}")
 
 #
-# Listing 7.24 Writing a step-by-step evaluation loop
+# Listing 7.25 Adding a @tf.function decorator to our evaluation-step function
+@tf.function
 def test_step(inputs, targets):
     # Note that we pass training=False.
     predictions = model(inputs, training=False)
