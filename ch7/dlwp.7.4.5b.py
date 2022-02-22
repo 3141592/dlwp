@@ -42,15 +42,15 @@ class CustomModel(keras.Model):
             # We use self(inputs, training=True) instead of model(inputs, training=True), 
             # since our model is the class itself.
             predictions = self(inputs, training=True)
-            loss = loss_fn(targets, predictions)
+            # Compute the loss via self.compiled_loss.
+            loss = self.compiled_loss(targets, predictions)
         gradients = tape.gradient(loss, model.trainable_weights)
         print(f"self.optimizer: {self.optimizer}")
         self.optimizer.apply_gradients(zip(gradients, model.trainable_weights))
-
-        # We update the loss tracker metric that tracks the average of the loss.
-        loss_tracker.update_state(loss)
-        # We return the average loss so far by querying the loss tracker metric.
-        return {"loss": loss_tracker.result()}
+        # Update the model's metrics via self.compiled_metric.
+        self.compiled_metrics.update_state(targets, predictions)
+        # Return a dict mapping metric names to their current value.
+        return {m.name: m.result() for m in self.metrics}
 
     @property
     # Any metric you would like to reset across epochs should be listed here.
@@ -65,8 +65,9 @@ features = layers.Dropout(0.5)(features)
 outputs = layers.Dense(10, activation="softmax")(features)
 model = CustomModel(inputs, outputs)
 
-model.compile(optimizer=keras.optimizers.RMSprop())
-#model.compile(optimizer=keras.optimizers.SGD(learning_rate=0.1))
+model.compile(optimizer=keras.optimizers.RMSprop(),
+        loss=keras.losses.SparseCategoricalCrossentropy(),
+        metrics=[keras.metrics.SparseCategoricalAccuracy()])
 model.fit(train_images, train_labels, epochs=3)
 
 model.summary()
