@@ -26,12 +26,22 @@ test_dataset = image_dataset_from_directory(
         batch_size=32)
 
 #
-# Listing 8.19 Instantiating the VGG16 convolutional base
+# Listing 8.23 Instantiating and freezing the VGG16 convolutional base
+print("Listing 8.23 Instantiating and freezing the VGG16 convolutional base")
 conv_base = keras.applications.vgg16.VGG16(
         weights="imagenet",
-        include_top=False,
-        input_shape=(180, 180, 3))
+        include_top=False)
+conv_base.trainable = True
+print(f"conv_base.trainable: {conv_base.trainable}")
+print("This is the number of trainable weights before freezing the conv base: ", len(conv_base.trainable_weights))
+conv_base.trainable = False
+print("This is the number of trainable weights after freezing the conv base: ", len(conv_base.trainable_weights))
 
-conv_base.summary()
+
+
+
+
+
+
 
 
