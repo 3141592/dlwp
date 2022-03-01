@@ -102,5 +102,41 @@ test_loss, test_acc = test_model.evaluate(test_dataset)
 print(f"Test accuracy: {test_acc:.3f}")
 print(f"Test loss: {test_loss:.3f}")
 
+#
+# 8.3.2 Fine-tuning a pretrained model
+#
+# Listing 8.27 Freezing all layers until the fourth from the last
+print("Listing 8.27 Freezing all layers until the fourth from the last")
+conv_base.trainable = True
+for layer in conv_base.layers[:-4]:
+    layer.trainable = False
+
+#
+# Listing 8.28 Fine-tuning the model
+print("Listing 8.28 Fine-tuning the model")
+model.compile(loss="binary_crossentropy",
+        optimizer=keras.optimizers.RMSprop(learning_rate=1e-5),
+        metrics=["accuracy"])
+
+callbacks = [
+        keras.callbacks.ModelCheckpoint(
+            filepath="fine_tuning.keras",
+            save_best_only=True,
+            monitor="val_loss")
+]
+history = model.fit(
+        train_dataset,
+        epochs=30,
+        validation_data=validation_dataset,
+        callbacks=callbacks)
+
+model = keras.models.load_model("fine_tuning.keras")
+
+test_loss, test_acc = test_model.evaluate(test_dataset)
+print(f"Test accuracy: {test_acc:.3f}")
+print(f"Test loss: {test_loss:.3f}")
+
+
+
 
 
