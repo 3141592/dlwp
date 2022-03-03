@@ -24,7 +24,7 @@ from tensorflow.keras.utils import load_img, img_to_array
 
 plt.axis("off")
 # Display input image number 9.
-plt.imshow(load_img(input_img_paths[9]))
+plt.imshow(load_img(input_img_paths[10]))
 plt.show()
 
 def display_target(target_array):
@@ -37,7 +37,7 @@ def display_target(target_array):
     plt.show()
 
 # We use color_mode = "grayscale"so that the image we load is treated as having a single color channel.
-img = img_to_array(load_img(target_paths[9], color_mode="grayscale"))
+img = img_to_array(load_img(target_paths[10], color_mode="grayscale"))
 display_target(img)
 
 #
@@ -105,12 +105,12 @@ def get_model(img_size, num_classes):
     x = layers.Conv2D(256, 3, activation="relu", padding="same")(x)
 
     print("Creating Conv2DTranspose layers")
-    x = layers.Conv2DTranspose(256, 3, activation="relu", padding="same")(x)
-    x = layers.Conv2DTranspose(256, 3, activation="relu", padding="same", strides=2)(x)
-    x = layers.Conv2DTranspose(128, 3, activation="relu", padding="same")(x)
-    x = layers.Conv2DTranspose(128, 3, activation="relu", padding="same", strides=2)(x)
+    #x = layers.Conv2DTranspose(256, 3, activation="relu", padding="same")(x)
+    #x = layers.Conv2DTranspose(256, 3, activation="relu", padding="same", strides=2)(x)
+    #x = layers.Conv2DTranspose(128, 3, activation="relu", padding="same")(x)
+    #x = layers.Conv2DTranspose(128, 3, activation="relu", padding="same", strides=2)(x)
     x = layers.Conv2DTranspose(64, 3, activation="relu", padding="same")(x)
-    x = layers.Conv2DTranspose(64, 3, activation="relu", padding="same", strides=2)(x)
+    x = layers.Conv2DTranspose(64, 3, activation="relu", padding="same", strides=8)(x)
 
     # We end the model with a per-pixel three-way softmax to 
     # classify each output pixel into one of our three categories.
@@ -125,33 +125,17 @@ print("Creating model")
 model = get_model(img_size=img_size, num_classes=3)
 model.summary()
 
-# Compile and fit model
-print("Compile and fit model")
-model.compile(optimizer="rmsprop", loss="sparse_categorical_crossentropy")
 
-callbacks = [
-        keras.callbacks.ModelCheckpoint("oxford.segmentation.keras",
-            save_best_only=True)
-]
 
-history = model.fit(
-        train_input_imgs,
-        train_targets,
-        epochs=50,
-        callbacks=callbacks,
-        batch_size=64,
-        validation_data=(val_input_imgs, val_targets))
 
-# Figure 9.5
-print("Figure 9.5 Displaying training and validation loss curves")
-epochs = range(1, len(history.history["loss"]) + 1)
-loss = history.history["loss"]
-val_loss = history.history["val_loss"]
-plt.figure()
-plt.plot(epochs, loss, "bo", label="Training loss")
-plt.plot(epochs, val_loss, "b", label="Validation loss")
-plt.title("Training and validation loss")
-plt.legend()
+
+
+
+
+
+
+
+
 
 
 
