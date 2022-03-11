@@ -101,7 +101,7 @@ model.compile(loss="binary_crossentropy",
 # Listing 8.17 Training the regularized convnet
 callbacks = [
         keras.callbacks.ModelCheckpoint(
-            filepath="convnet_from_scratch_with_augmentation.keras",
+            filepath="convnet_with_xception_architecture.keras",
             save_best_only=True,
             metrics="val_loss")
 ]
@@ -130,7 +130,7 @@ plt.show()
 #
 # Listing 8.18 Evaluating the model on the test set
 print("Listing 8.18 Evaluating the model on the test set.")
-test_model = keras.models.load_model("convnet_from_scratch_with_augmentation.keras")
+test_model = keras.models.load_model("convnet_with_xception_architecture.keras")
 test_loss, test_acc = test_model.evaluate(test_dataset)
 print(f"Test accuracy: {test_acc:.3f}")
 
