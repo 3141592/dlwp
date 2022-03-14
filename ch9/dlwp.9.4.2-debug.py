@@ -128,7 +128,7 @@ def deprocess_image(image):
     image += 128
     image = np.clip(image, 0, 255).astype("uint8")
     image = image[25:-25, 25:-25, :]
-    return image
+
 
 print("Figure 9.16")
 import matplotlib.pyplot as plt
