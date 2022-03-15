@@ -136,3 +136,43 @@ plt.axis("off")
 plt.imshow(deprocess_image(generate_filter_pattern(filter_index=2)))
 plt.show()
 
+#
+# Listing 9.19 Generating a grid of all filter response patterns in a layer
+print("Listing 9.19 Generating a grid of all filter response patterns in a layer")
+# Generate and save visualizations for the first 64 filters in the layer.
+all_images = []
+for filter_index in range(64):
+    print(f"Processing filter {filter_index}")
+    image = deprocess_image(
+            generate_filter_pattern(filter_index)
+    )
+    all_images.append(image)
+
+# Prepare a blank canvas for us to paste filter visualization on.
+margin = 5
+n = 8
+cropped_width = img_width - 25 * 2
+cropped_height = img_height - 25 * 2
+width = n * cropped_width + (n - 1) * margin
+height = n * cropped_height + (n - 1) * margin
+stitched_filters = np.zeros((width, height, 3))
+
+# Fill the picture with the saved filters.
+for i in range(n):
+    for j in range(n):
+        image = all_images[i * n + j]
+        stitched_filters[
+                (cropped_width + margin) * i :  (cropped_width + margin) * i + cropped_width,
+                (cropped_height + margin) * j : (cropped_height + margin) * j + cropped_height,
+                :, 
+        ] = image
+
+# Save the canvas to disk.
+keras.utils.save_img(f"filters_for_layer_{layer_name}.png", stitched_filters)
+
+plt.axis("off")
+plt.imshow(stitched_filters)
+plt.show()
+
+
+
