@@ -100,7 +100,6 @@ heatmap /= np.max(heatmap)
 #
 # Listing 9.27 Superimposing the heatmap on the original picture
 print("Listing 9.27 Superimposing the heatmap on the original picture")
-#import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 img = keras.utils.load_img(img_path)
@@ -130,7 +129,12 @@ superimposed_img = keras.utils.array_to_img(superimposed_img)
 print("Saving image.")
 save_path = "elephant_cam.jpg"
 superimposed_img.save(save_path)
-#plt.imshow(superimposed_img)
-#plt.show()
+
+from skimage import io
+print("io.imread()")
+img = io.imread("elephant_cam.jpg")
+print("io.imshow()")
+io.imshow(img)
+
 
 
