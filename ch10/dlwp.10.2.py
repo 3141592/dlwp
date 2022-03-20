@@ -42,4 +42,75 @@ print("Listing 10.4 Plotting the first 10 days of the temperature timeseries")
 plt.plot(range(1440), temperature[:1440])
 plt.show()
 
+#
+# Listing 10.5 Computing the number of samples we'll use for each data split
+print("Listing 10.5 Computing the number of samples we'll use for each data split")
+num_train_samples = int(0.5 * len(raw_data))
+num_val_samples = int(0.25 * len(raw_data))
+num_test_samples = len(raw_data) - num_train_samples - num_val_samples
+print("num_train_samples: ", num_train_samples)
+print("num_val_samples: ", num_val_samples)
+print("num_test_samples: ", num_test_samples)
 
+#
+# Listing 10.6 Normalizing the data
+print("Listing 10.6 Normalizing the data")
+#print("raw_data[0]: ", raw_data[0])
+mean = raw_data[:num_train_samples].mean(axis=0)
+raw_data -= mean
+std = raw_data[:num_train_samples].std(axis=0)
+raw_data /= std
+#print("raw_data[0]: ", raw_data[0])
+
+#
+# Listing 10.7 Instantiating datasets for training, validation, and testing
+print("Listing 10.7 Instantiating datasets for training, validation, and testing")
+from tensorflow import keras
+
+sampling_rate = 6
+sequence_length = 120
+delay = sampling_rate * (sequence_length + 24 -1)
+batch_size = 256
+
+train_dataset = keras.utils.timeseries_dataset_from_array(
+        data=raw_data[:-delay],
+        targets=temperature[delay:],
+        sampling_rate=sampling_rate,
+        sequence_length=sequence_length,
+        shuffle=True,
+        batch_size=batch_size,
+        start_index=0,
+        end_index=num_train_samples)
+
+val_dataset = keras.utils.timeseries_dataset_from_array(
+        raw_data[:-delay],
+        targets=temperature[delay:],
+        sampling_rate=sampling_rate,
+        sequence_length=sequence_length,
+        shuffle=True,
+        batch_size=batch_size,
+        start_index=num_train_samples,
+        end_index=num_train_samples + num_val_samples)
+
+test_dataset = keras.utils.timeseries_dataset_from_array(
+        raw_data[:-delay],
+        targets=temperature[delay:],
+        sampling_rate=sampling_rate,
+        sequence_length=sequence_length,
+        shuffle=True,
+        batch_size=batch_size,
+        start_index=num_train_samples + num_val_samples)
+
+#
+# Listing 10.8 Inspecting the output of one of our datasets
+print("Listing 10.8 Inspecting the output of one of our datasets")
+from tensorflow.python.ops.numpy_ops import np_config
+np_config.enable_numpy_behavior()
+for samples, targets in train_dataset:
+    print(f"samples.__class__.__name__: {samples.__class__.__name__}")
+    print("sample size: ", samples.size)
+    print("samples.shape: ", samples.shape)
+    print("targets.shape: ", targets.shape)
+    print("samples[0][0]: ", samples[0][0])
+    print("targets[0]: ", targets[0])
+    break
