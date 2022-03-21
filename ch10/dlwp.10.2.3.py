@@ -1,4 +1,5 @@
-# 10.2 A temperature forecasting example
+# 10.2.3 Let's try a basic machine learning model
+print("10.2.3 Let's try a basic machine learning model")
 # Suppress warnings
 import os, pathlib
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -15,8 +16,6 @@ with open(fname) as f:
 lines = data.split("\n")
 header = lines[0].split(",")
 lines = lines[1:]
-print(header)
-print(len(lines))
 
 #
 # Listing 10.2 Parsing the data
@@ -28,19 +27,6 @@ for i, line in enumerate(lines):
     values = [float(x) for x in line.split(",")[1:]]
     temperature[i] = values[1]
     raw_data[i, :] = values[:]
-
-#
-# Listing 10.3 Plotting the temperature timeseries
-print("Listing 10.3 Plotting the temperature time series")
-from matplotlib import pyplot as plt
-plt.plot(range(len(temperature)), temperature)
-plt.show()
-
-#
-# Listing 10.4 Plotting the first 10 days of the temperature timeseries
-print("Listing 10.4 Plotting the first 10 days of the temperature timeseries")
-plt.plot(range(1440), temperature[:1440])
-plt.show()
 
 #
 # Listing 10.5 Computing the number of samples we'll use for each data split
@@ -116,23 +102,45 @@ for samples, targets in train_dataset:
     break
 
 #
-# Listing 10.9 Computing the common-sense baseline MAE
-print("Listing 10.9 Computing the common-sense baseline MAE")
-def evaluate_naive_method(dataset):
-    total_abs_err = 0
-    samples_seen = 0
-    for samples, targets in dataset:
-        # The temperature feature is at column 1, so samples[:, -1, 1] is the last temperature measurement
-        # in the inputs sequence. Recall that we normalized our features, so to retrieve a temperature
-        # in degrees Celcius, we need to un-normalize it by multiplying it by the standard deviation,
-        # and adding back the mean.
-        preds = samples[:, -1, 1] * std[1] + mean[1]
-        total_abs_err += np.sum(np.abs(preds - targets))
-        samples_seen += samples.shape[0]
-    return total_abs_err / samples_seen
+# Listing 10.10 Training and evaluating a densely connected model
+print("Listing 10.10 Training and evaluating a densely connected model")
+from tensorflow import keras
+from tensorflow.keras import layers
 
-print(f"Validation MAE: {evaluate_naive_method(val_dataset):.2f}")
-print(f"Test MAE: {evaluate_naive_method(test_dataset):.2f}")
+inputs = keras.Input(shape=(sequence_length, raw_data.shape[-1]))
+x = layers.Flatten()(inputs)
+x = layers.Dense(16, activation="relu")(x)
+outputs = layers.Dense(1)(x)
+model = keras.Model(inputs, outputs)
+model.summary()
 
+callbacks = [
+        # We use a callback to save the best-performing model
+        keras.callbacks.ModelCheckpoint("jena_dense.keras",
+            save_best_only=True)
+]
+model.compile(optimizer="rmsprop", loss="mse", metrics=["mae"])
+history = model.fit(train_dataset,
+        epochs=10,
+        validation_data=val_dataset,
+        callbacks=callbacks)
 
+# Reload the best model and evaluate it on test data.
+print("Reload the best model and evaluate it on test data.")
+model = keras.models.load_model("jena_dense.keras")
+print(f"Test MAE: {model.evaluate(test_dataset)[1]:.2f}")
+
+#
+# Listing 10.11 Plotting results
+print("Listing 10.11 Plotting results")
+import matplotlib.pyplot as plt
+loss = history.history["mae"]
+val_loss = history.history["val_mae"]
+epochs = range(1, len(loss) + 1)
+plt.figure()
+plt.plot(epochs, loss, "bo", label="Training MAE")
+plt.plot(epochs, val_loss, "b", label="Validation MAE")
+plt.title("Training and validation MAE")
+plt.legend()
+plt.show()
 
