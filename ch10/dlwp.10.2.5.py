@@ -1,5 +1,5 @@
-# 10.2.4 Let's try a 1D convolutional model
-print("10.2.4 Let's try a 1D convolutional model")
+# 10.2.4 A simple LSTM-based model
+print("10.2.4 A simple LSTM-based model")
 # Suppress warnings
 import os, pathlib
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -105,12 +105,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 inputs = keras.Input(shape=(sequence_length, raw_data.shape[-1]))
-x = layers.Conv1D(8, 24, activation="relu")(inputs)
-x = layers.MaxPooling1D(2)(x)
-x = layers.Conv1D(8, 12, activation="relu")(x)
-x = layers.MaxPooling1D(2)(x)
-x = layers.Conv1D(8, 6, activation="relu")(x)
-x = layers.GlobalAveragePooling1D()(x)
+x = layers.LSTM(16)(inputs)
 outputs = layers.Dense(1)(x)
 model = keras.Model(inputs, outputs)
 model.summary()
@@ -144,3 +139,4 @@ plt.plot(epochs, val_loss, "b", label="Validation MAE")
 plt.title("Training and validation MAE")
 plt.legend()
 plt.show()
+
