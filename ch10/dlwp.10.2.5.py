@@ -134,8 +134,8 @@ loss = history.history["mae"]
 val_loss = history.history["val_mae"]
 epochs = range(1, len(loss) + 1)
 plt.figure()
-plt.plot(epochs, loss, "bo", label="Training MAE")
-plt.plot(epochs, val_loss, "b", label="Validation MAE")
+plt.plot(epochs[1:], loss[1:], "bo", label="Training MAE")
+plt.plot(epochs[1:], val_loss[1:], "b", label="Validation MAE")
 plt.title("Training and validation MAE")
 plt.legend()
 plt.show()
