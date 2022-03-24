@@ -1,5 +1,5 @@
-# 10.2.5 A first recurrent baseline
-print("10.2.5 A first recurrent baseline")
+# 10.4 Advanced use of recurrent neural networks
+print("10.4 Advanced use of recurrent neural networks")
 # Suppress warnings
 import os, pathlib
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -101,26 +101,31 @@ for samples, targets in train_dataset:
     print("targets[0]: ", targets[0])
     break
 
+# 10.4.1 Using recurrent dropout to fight overfitting
+print("10.4.1 Using recurrent dropout to fight overfitting")
+
 #
-# Listing 10.12 A simple LSTM-based model
-print("Listing 10.12 A simple LSTM-based model")
+# Listing 10.22 Training and evaluating a dropout-regularized LSTM
+print("Listing 10.22 Training and evaluating a dropout-regularized LSTM")
 from tensorflow import keras
 from tensorflow.keras import layers
 
 inputs = keras.Input(shape=(sequence_length, raw_data.shape[-1]))
-x = layers.LSTM(16)(inputs)
+x = layers.LSTM(32, recurrent_dropout=0.25)(inputs)
+# To regularize the Dense layer, we also add a Dropout layer after the LSTM.
+x = layers.Dropout(0.5)(x)
 outputs = layers.Dense(1)(x)
 model = keras.Model(inputs, outputs)
 model.summary()
 
 callbacks = [
         # We use a callback to save the best-performing model
-        keras.callbacks.ModelCheckpoint("jena_dense.keras",
+        keras.callbacks.ModelCheckpoint("jena_lstm_dropout.keras",
             save_best_only=True)
 ]
 model.compile(optimizer="rmsprop", loss="mse", metrics=["mae"])
 history = model.fit(train_dataset,
-        epochs=10,
+        epochs=50,
         validation_data=val_dataset,
         callbacks=callbacks)
 
