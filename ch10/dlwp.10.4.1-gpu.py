@@ -111,7 +111,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 inputs = keras.Input(shape=(sequence_length, raw_data.shape[-1]))
-x = layers.LSTM(32, recurrent_dropout=0.25)(inputs)
+x = layers.LSTM(32, recurrent_dropout=0.2, unroll=True)(inputs)
 # To regularize the Dense layer, we also add a Dropout layer after the LSTM.
 x = layers.Dropout(0.5)(x)
 outputs = layers.Dense(1)(x)
@@ -120,7 +120,7 @@ model.summary()
 
 callbacks = [
         # We use a callback to save the best-performing model
-        keras.callbacks.ModelCheckpoint("jena_lstm_dropout.keras",
+        keras.callbacks.ModelCheckpoint("jena_lstm_dropouti_gpu.keras",
             save_best_only=True)
 ]
 model.compile(optimizer="rmsprop", loss="mse", metrics=["mae"])
@@ -131,7 +131,7 @@ history = model.fit(train_dataset,
 
 # Reload the best model and evaluate it on test data.
 print("Reload the best model and evaluate it on test data.")
-model = keras.models.load_model("jena_dense.keras")
+model = keras.models.load_model("jena_lstm_dropouti_gpu.keras")
 print(f"Test MAE: {model.evaluate(test_dataset)[1]:.2f}")
 
 #
