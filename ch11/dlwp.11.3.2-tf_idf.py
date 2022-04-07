@@ -21,48 +21,30 @@ val_ds = keras.utils.text_dataset_from_directory(
 test_ds = keras.utils.text_dataset_from_directory(
         "/root/src/aclImdb/test/", batch_size=batch_size)
 
-for inputs, targets in train_ds:
-    print("inputs.shape: ", inputs.shape)
-    print("inputs.dtype: ", inputs.dtype)
-    print("targets.shape: ", targets.shape)
-    print("targets.dtype: ", targets.dtype)
-    print("inputs[0]: ", inputs[0])
-    print("targets[0]: ", targets[0])
-    break
-
 print("11.3.2 Processing words as a set: The bag-of-words approach")
-print("Listing 11.7 Configuring the TextVectorization layer to return bigrams")
+print("Listing 11.10 Configuring TextVectorization to return TF-IDF-weighted outputs")
+print("As of TF 2.8.0 this only works on CPU, not GPU")
 text_vectorization = TextVectorization(
         ngrams=2,
-        # Limit vocabulary to the 20,000 most frequent words.
         max_tokens=20000,
-        # Encode the output tokens as multi-hot binary vectors.
-        output_mode="multi_hot")
+        output_mode="tf_idf")
+
 print("Prepare a dataset that only yields raw text inputs (no labels).")
 text_only_train_ds = train_ds.map(lambda x, y: x)
-# Use that dataset to index the dataset vocabulary via the adapt() method.
+
+# The adpat() call will learn the TF-IDF weights in addition to the vocabulary. 
 text_vectorization.adapt(text_only_train_ds)
 
-print("Listing 11.8 Training and testing the binary bigram model")
-binary_2gram_train_ds = train_ds.map(
+print("Listing 11.11 Training and testing the TF-IDF bigram model")
+tfidf_2gram_train_ds = train_ds.map(
         lambda x, y: (text_vectorization(x), y),
         num_parallel_calls=tf.data.AUTOTUNE)
-binary_2gram_val_ds = val_ds.map(
+tfidf_2gram_val_ds = val_ds.map(
         lambda x, y: (text_vectorization(x), y),
         num_parallel_calls=tf.data.AUTOTUNE)
-binary_2gram_test_ds = test_ds.map(
+tfidf_2gram_test_ds = test_ds.map(
         lambda x, y: (text_vectorization(x), y),
         num_parallel_calls=tf.data.AUTOTUNE)
-
-print("Listing 11.4 Inspecting the output of our binary unigram dataset")
-for inputs, targets in binary_2gram_train_ds:
-    print("inputs.shape: ", inputs.shape)
-    print("inputs.dtype: ", inputs.dtype)
-    print("targets.shape: ", targets.shape)
-    print("targets.dtype: ", targets.dtype)
-    print("inputs[0]: ", inputs[0])
-    print("targets[0]: ", targets[0])
-    break
 
 print("Listing 11.5 Our model-building utility")
 from tensorflow import keras
@@ -79,20 +61,36 @@ def get_model(max_tokens=20000, hidden_dim =16):
             metrics=["accuracy"])
     return model
 
-print("Listing 11.6 Training and testing the binary unigram model")
 model = get_model()
 model.summary()
 callbacks = [
-        keras.callbacks.ModelCheckpoint("binary_2gram.keras",
+        keras.callbacks.ModelCheckpoint("tfidf_2gram.keras",
                                         save_best_only=True)
 ]
 # We call cache() on the datasets to cache them in memory: this way we will only do the preprocessing once,
 # during the first epoch, and we'll use the preprocessed texts for the following epochs.
 # This can only be done if the data is small enough to fit in memory.
-model.fit(binary_2gram_train_ds.cache(),
-        validation_data=binary_2gram_val_ds.cache(),
+model.fit(tfidf_2gram_train_ds.cache(),
+        validation_data=tfidf_2gram_val_ds.cache(),
         epochs=10,
         callbacks=callbacks)
-model = keras.models.load_model("binary_2gram.keras")
-print(f"Test acc: {model.evaluate(binary_2gram_test_ds)[1]:.3f}")
+model = keras.models.load_model("tfidf_2gram.keras")
+print(f"Test acc: {model.evaluate(tfidf_2gram_test_ds)[1]:.3f}")
+
+print("Exporting a model the processes raw strings")
+# Our sample would be one string
+inputs = keras.Input(shape=(1,), dtype="string")
+# Apply text preprocessing
+processed_inputs = text_vectorization(inputs)
+# Apply the previously trained model
+outputs = model(processed_inputs)
+# Instantiate the end-to-end model
+inference_model = keras.Model(inputs, outputs)
+inference_model.summary()
+raw_text_data = tf.convert_to_tensor([
+    ["That was the best movie I've ever seen."],
+])
+predictions = inference_model(raw_text_data)
+print(f"{float(predictions[0] * 100):.2f} percent positive")
+
 
