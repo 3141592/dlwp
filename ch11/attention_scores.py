@@ -67,43 +67,28 @@ vocabulary = text_vectorization.get_vocabulary()
 # Use it to create a mapping from words to their index in the vocabulary.
 word_index = dict(zip(vocabulary, range(len(vocabulary))))
 
+# Use it to create a mapping from words to their index in the vocabulary.
+word_index = dict(zip(vocabulary, range(len(vocabulary))))
+
 # Prepare a matrix that we'll fill with the GloVe vectors.
-embedding_matrix = np.zeros((max_tokens, embedding_dim))
-for word, i in word_index.items():
-    if i < max_tokens:
-        embedding_vector = embeddings_index.get(word)
-    # Fill emtry i in the matrix with the word vector for index i.
-    # Words not foundin the embedding index will be all zeros.
-    if embedding_vector is not None:
-        embedding_matrix[i] = embedding_vector
+train = embeddings_index.get("train")
+station = embeddings_index.get("station")
+carrot = embeddings_index.get("carrot")
+radio = embeddings_index.get("radio")
+beet = embeddings_index.get("beet")
+attention = embeddings_index.get("attention")
+score = embeddings_index.get("score")
+space = embeddings_index.get("space")
 
-embedding_layer = layers.Embedding(
-        max_tokens,
-        embedding_dim,
-        embeddings_initializer=keras.initializers.Constant(embedding_matrix),
-        trainable=False,
-        mask_zero=True
-)
+print("train and station:", train.dot(station))
+print("train and carrot: ", train.dot(carrot))
+print("radio and station: ", radio.dot(station))
+print("carrot and beet: ", carrot.dot(beet))
+print("attention and score: ", attention.dot(score))
+print("station and train: ", station.dot(train))
+print("station and space: ", station.dot(space))
+print("dog and wolf: ", embeddings_index.get("dog").dot(embeddings_index.get("wolf")))
+print("see and saw: ", embeddings_index.get("see").dot(embeddings_index.get("saw")))
+print("station and station: ", embeddings_index.get("station").dot(embeddings_index.get("station")))
+print("station and stations: ", embeddings_index.get("station").dot(embeddings_index.get("stations")))
 
-print("Listing 11.20 Model that uses a pretrained Embedding layer")
-inputs = keras.Input(shape=(None,), dtype="int64")
-embedded = embedding_layer(inputs)
-x = layers.Bidirectional(layers.LSTM(32))(embedded)
-x = layers.Dropout(0.5)(x)
-outputs = layers.Dense(1, activation="sigmoid")(x)
-model = keras.Model(inputs, outputs)
-model.compile(optimizer="rmsprop",
-        loss="binary_crossentropy",
-        metrics=["accuracy"])
-model.summary()
-
-callbacks = [
-        keras.callbacks.ModelCheckpoint("glove_embeddings_sequence_model.keras",
-            save_best_only=True)
-]
-model.fit(int_train_ds,
-        validation_data=int_val_ds,
-        epochs=10,
-        callbacks=callbacks)
-model=keras.models.load_model("glove_embeddings_sequence_model.keras")
-print(f"Test acc: {model.evaluate(int_test_ds)[1]:.3f}")

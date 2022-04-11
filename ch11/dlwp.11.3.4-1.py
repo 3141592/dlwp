@@ -3,12 +3,14 @@ import os, pathlib
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Force CPU use for keras.
-#os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-#os.environ["CUDA_VISIBLE_DEVICES"] = ""
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
-print("11.3.3 Processing words as a sequence: The sequencemodel approach")
+print("11.3.4 Using pretrained word embeddings")
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras import layers
+
 batch_size = 16
 
 train_ds = keras.utils.text_dataset_from_directory(
@@ -20,20 +22,15 @@ val_ds = keras.utils.text_dataset_from_directory(
 test_ds = keras.utils.text_dataset_from_directory(
                 "/root/src/aclImdb/test/", batch_size=batch_size)
 
-text_only_train_ds = train_ds.map(lambda x, y: x)
-
-print("Listing 11.12 Preparing integer sequence datasets")
-from tensorflow.keras import layers
-
 max_length = 600
 max_tokens = 20000
 text_vectorization = layers.TextVectorization(
         max_tokens=max_tokens,
         output_mode="int",
-        # In order to keep a manageable input size, we'll truncate the inputs after the first 600 words.
         output_sequence_length=max_length,
 )
-text_vectorization.adapt(text_only_train_ds)
+
+text_only_train_ds = train_ds.map(lambda x, y: x)
 
 int_train_ds = train_ds.map(
                 lambda x, y: (text_vectorization(x), y),
@@ -105,5 +102,6 @@ model.fit(int_train_ds,
         validation_data=int_val_ds,
         epochs=10,
         callbacks=callbacks)
-model=keras.models.load_model("glove_embeddings_sequence_model.keras")
+model=keras.load_model("glove_embeddings_sequence_model.keras")
 print(f"Test acc: {model.evaluate(int_test_ds)[1]:.3f}")
+
