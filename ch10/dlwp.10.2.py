@@ -7,7 +7,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # Listing 10.1 Inspecting the data of the Jena weather dataset
 print("Listing 10.1 Inspecting the data of the Jena weather dataset")
 import os
-fname = os.path.join("/root/src/jena_climate_2009_2016.csv")
+fname = os.path.join("/root/src/data/jena_climate_2009_2016.csv")
 
 with open(fname) as f:
     data = f.read()
