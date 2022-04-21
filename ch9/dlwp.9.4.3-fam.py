@@ -31,7 +31,7 @@ def process_image(no):
         img_path = keras.utils.get_file(fname="cat.jpg", origin="https://img-datasets.s3.amazonaws.com/cat.jpg")
     elif(no==4):
         # [('n02108422', 'bull_mastiff', 0.47068202), ('n02106550', 'Rottweiler', 0.092656404), ('n02088466', 'bloodhound', 0.034463808)]
-        img_path = "/root/src/cats_vs_dogs_small/test/dog/dog.2499.jpg"
+        img_path = "/root/src/data/cats_vs_dogs_small/test/dog/dog.2499.jpg"
     elif(no==5):
         # [('n02109047', 'Great_Dane', 0.9922776), ('n02100236', 'German_short-haired_pointer', 0.001078376), ('n02092339', 'Weimaraner', 0.0007794483)]
         img_path = "/mnt/d/great.dane.jpg"

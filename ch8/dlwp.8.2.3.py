@@ -9,7 +9,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 # 8.2.2
-new_base_dir = pathlib.Path("/root/src/cats_vs_dogs_small")
+new_base_dir = pathlib.Path("/root/src/data/cats_vs_dogs_small")
 
 # The model expects RGB images of size 180 x 180
 inputs = keras.Input(shape=(180, 180, 3))

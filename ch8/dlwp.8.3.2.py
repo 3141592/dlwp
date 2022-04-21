@@ -4,7 +4,7 @@ import os, pathlib
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # 8.2.2
-new_base_dir = pathlib.Path("/root/src/cats_vs_dogs_small")
+new_base_dir = pathlib.Path("/root/src/data/cats_vs_dogs_small")
 
 #
 # Listing 8.9 Using image_dataset_from_directory to read images

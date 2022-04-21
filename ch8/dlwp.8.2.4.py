@@ -9,7 +9,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 # 8.2.2
-new_base_dir = pathlib.Path("/root/src/cats_vs_dogs_small")
+new_base_dir = pathlib.Path("/root/src/data/cats_vs_dogs_small")
 
 #
 # Listing 8.9 Using image_dataset_from_directory to read images
