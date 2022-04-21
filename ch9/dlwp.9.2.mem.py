@@ -6,7 +6,7 @@ import os, pathlib
 import os
 
 input_dir = "/root/src/images/"
-target_dir = "/root/src/annotations/trimaps/"
+target_dir = "/root/src/data/annotations/trimaps/"
 
 input_img_paths = sorted(
         [os.path.join(input_dir, fname)
@@ -88,8 +88,8 @@ val_targets = targets[-num_val_samples:]
 # Mar 19, 2019
 # https://medium.com/@mrgarg.rajat/training-on-large-datasets-that-dont-fit-in-memory-in-keras-60a974785d71
 #
-from skimage.io import imread
-from skimage.transform import resize
+#from skimage.io import imread
+#from skimage.transform import resize
 from tensorflow import keras
 
 class My_Custom_Generator(keras.utils.Sequence) :

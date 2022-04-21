@@ -7,7 +7,7 @@ import os
 from tensorflow.keras.utils import load_img, img_to_array 
 
 input_dir = "/root/src/images/"
-target_dir = "/root/src/annotations/trimaps/"
+target_dir = "/root/src/data/annotations/trimaps/"
 
 input_img_paths = sorted(
         [os.path.join(input_dir, fname)
