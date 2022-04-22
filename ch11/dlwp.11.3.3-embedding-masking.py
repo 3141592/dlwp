@@ -6,7 +6,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 #os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 #os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
-print("11.3.3 Processing words as a sequence: The sequencemodel approach")
+print("11.3.3 Processing words as a sequence: The sequence model approach")
 import tensorflow as tf
 from tensorflow import keras
 batch_size = 16
