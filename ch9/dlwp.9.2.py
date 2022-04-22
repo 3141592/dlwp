@@ -1,11 +1,11 @@
-# 9.2 An image segmentation example
+print("9.2 An image segmentation example")
 # Suppress warnings
 import os, pathlib
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import os
 
-input_dir = "/root/src/images/"
+input_dir = "/root/src/data/images/"
 target_dir = "/root/src/data/annotations/trimaps/"
 
 input_img_paths = sorted(
@@ -18,12 +18,12 @@ target_paths = sorted(
             if fname.endswith(".png") and not fname.startswith(".")])
 
 #
-# Figure 9.3 An example image
+print("Figure 9.3 An example image")
 import matplotlib.pyplot as plt
 from tensorflow.keras.utils import load_img, img_to_array
 
 plt.axis("off")
-# Display input image number 9.
+print("Display input image number 9.")
 plt.imshow(load_img(input_img_paths[9]))
 plt.show()
 
@@ -41,7 +41,7 @@ img = img_to_array(load_img(target_paths[9], color_mode="grayscale"))
 display_target(img)
 
 #
-# Load inputs and targets into two NumPy arrays.
+print("Load inputs and targets into two NumPy arrays.")
 import numpy as np
 import random
 
