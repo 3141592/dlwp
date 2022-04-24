@@ -9,7 +9,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 print("11.5 Beyond text classification: Sequence-to-sequence learning")
 print("11.5.1 A machine translation example")
 print("Parse the file")
-text_file = "/root/src/spa-eng/spa.txt"
+text_file = "/root/src/data/spa-eng/spa.txt"
 with open(text_file) as f:
     lines = f.read().split("\n")[:-1]
 text_pairs = []
@@ -25,22 +25,28 @@ for line in lines:
 print("Shuffle and split data into training, validation, and test")
 import random
 random.shuffle(text_pairs)
+num_val_samples = int(0.15 * len(text_pairs))
+num_train_samples = len(text_pairs) - 2 * num_val_samples
+train_pairs = text_pairs[:num_train_samples]
+val_pairs = text_pairs[num_train_samples:num_train_samples + num_val_samples]
+test_pairs = text_pairs[num_train_samples + num_val_samples]
 
 print(random.choice(text_pairs))
 
 print("Listing 11.6 Vectorizing the English and Spanish text pairs")
 import tensorflow as tf
+from tensorflow.keras import layers
 import string
 import re
 
 # Hold ALT+168 from keypad
 strip_chars = string.punctuation + "¿"
-strip_chars = strip_char.replace("[", "")
-strip_chars = strip_char.replace("]", "")
+strip_chars = strip_chars.replace("[", "")
+strip_chars = strip_chars.replace("]", "")
 
 def custom_standardization(input_string):
     lowercase = tf.strings.lower(input_string)
-    return if tf.strings.regex_replace(
+    return tf.strings.regex_replace(
             lowercase, f"[{re.escape(strip_chars)}]", "")
 
 # To keep things simple, we'll only look at the top 15,000 words in each
@@ -63,5 +69,22 @@ target_vectorization = layers.TextVectorization(
         output_sequence_length=sequence_length + 1,
         standardize=custom_standardization
 )
-train_english_texts = [pair[0] 
+train_english_texts = [pair[0] for pair in train_pairs]
+train_spanish_texts = [pair[1] for pair in train_pairs]
+source_vectorization.adapt(train_english_texts)
+target_vectorization.adapt(train_spanish_texts)
+
+print("Listing 11.27 Preparing datasets for the translation task")
+batch_size = 64
+
+def format_dataset(eng, spa):
+    eng = source_vectorization(eng)
+    spa = target_vectorization(spa)
+    return({
+        "english": eng,
+        "Spanish": spa[:, :-1],
+        }, spa[:, 1:])
+
+
+
 

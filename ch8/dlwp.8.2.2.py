@@ -5,7 +5,7 @@
 import os, shutil, pathlib
 
 # Path to original directory where original dataset was uncompressed
-original_dir = pathlib.Path("/root/src/train")
+original_dir = pathlib.Path("/root/src/data/dogs-vs-cats/train")
 # Directory where we will store our smaller dataset
 new_base_dir = pathlib.Path("/root/src/data/cats_vs_dogs_small")
 
@@ -20,8 +20,6 @@ def make_subset(subset_name, start_index, end_index):
         fnames = [f"{category}.{i}.jpg"
                 for i in range(start_index, end_index)]
         for fname in fnames:
-            if os.path.exists(dir / fname):
-                    os.remove(filePath)
             shutil.copy(src=original_dir / fname,
                     dst=dir / fname)
 
