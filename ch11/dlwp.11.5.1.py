@@ -82,8 +82,30 @@ def format_dataset(eng, spa):
     spa = target_vectorization(spa)
     return({
         "english": eng,
-        "Spanish": spa[:, :-1],
+        # The input Spanish sentence does not include the last token
+        # to keep inputs and targets at the same length.
+        "spanish": spa[:, :-1],
+        # The target Spanish sentence is one step ahead. Both are still the same length.
         }, spa[:, 1:])
+
+def make_dataset(pairs):
+    eng_texts, spa_texts = zip(*pairs)
+    eng_texts = list(eng_texts)
+    spa_texts = list(spa_texts)
+    dataset = tf.data.Dataset.from_tensor_slices((eng_texts, spa_texts))
+    dataset = dataset.batch(batch_size)
+    dataset = dataset.map(format_dataset, num_parallel_calls=tf.data.AUTOTUNE)
+    # Use in-memory caching to speed up preprocessing.
+    return dataset.shuffle(2048).prefetch(16).cache()
+
+train_ds = make_dataset(train_pairs)
+val_ds = make_dataset(val_pairs)
+
+print("Here's what our dataset outputs look like:")
+for inputs, targets in train_ds.take(1):
+    print(f"inputs['english'].shape: {inputs['english'].shape}")
+    print(f"inputs['spanish'].shape: {inputs['spanish'].shape}")
+    print(f"targets.shape: {targets.shape}")
 
 
 
