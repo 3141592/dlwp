@@ -144,3 +144,36 @@ seq2seq_rnn.compile(
         metrics=["accuracy"])
 seq2seq_rnn.fit(train_ds, epochs=15, validation_data=val_ds)
 
+print("Listing 11.31 Translating new sentences with our RNN encoder and decoder")
+import numpy as np
+# Prepare a dict to convert token index predictions to string tokens.
+spa_vocab = target_vectorization.get_vocabulary()
+spa_index_lookup = dict(zip(range(len(spa_vocab)), spa_vocab))
+max_decoded_sentence_length = 20
+
+def decode_sequence(input_sentence):
+    tokenized_input_sequence = source_vectorization([input_sentence])
+    # Seed token
+    decoded_sentence = "[start]"
+    for i in range(max_decoded_sentence_length):
+        tokenized_target_sequence = target_vectorization([decoded_sentence])
+        # Sample the next token.
+        next_token_predictions = seq2seq_rnn.predict(
+                [tokenized_input_sequence, tokenized_target_sequence])
+        sampled_token_index = np.argmax(next_token_predictions[0, i, :])
+        # Convert the next token prediction to a string and append it to the generated sentence.
+        sampled_token = spa_index_lookup[sampled_token_index]
+        decoded_sentence += " " + sampled_token
+        # Exit condition: either hit max length or sample a stop character
+        if sampled_token == "[end]":
+            break
+    return decoded_sentence
+
+test_eng_texts = [pair[0] for pair in test_pairs]
+for _ in range(20):
+    input_sentence = random.choice(test_eng_texts)
+    print("-")
+    print(input_sentence)
+    print(decode_sequence(input_sentence))
+
+
