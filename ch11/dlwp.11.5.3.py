@@ -57,8 +57,31 @@ def get_causal_attention_mask(self, inputs):
              tf.constant([1, 1], dtype=tf.int32)], axis=0)
     return tf.tile(mask, mult)
 
-
-
-
+print("Listing 11.35 The forward pass of the TransformerDecoder")
+def call(self, inputs, encoder_outputs, mask=None):
+    # Retrieve the causal mask
+    causal_mask = self.get_causal_attention_mask(inputs)
+    # Prepare input mask
+    if mask is not None:
+        padding_mask = tf.cast(
+                mask[:, tf.newaxis, :], dtype="int32")
+        # Merge the two masks together
+        padding_mask = tf.minimum(padding_mask, causal_mask)
+    attention_output_1 = self.attention_1(
+        query=inputs,
+        value=inputs,
+        key=inputs,
+        # Pass causal mask to first attention layer
+        attention_mask=causal_mask)
+    attention_output_1 = self.layernorm_1(inputs + attention_output_1)
+    attention_output_2 = self.attention_2(
+        query=attention_output_1,
+        value=encoder_outputs,
+        key=encoder_outputs,
+        # Pass causal mask to first attention layer
+        attention_mask=padding_mask)
+    attention_output_2 = self.layernorm_2(attention_output_1 + attention_output_2)
+    proj_output = self.dense_proj(attention_output_2)
+    return self.layernorm_3(attention_output_2 + proj_output)
 
 
