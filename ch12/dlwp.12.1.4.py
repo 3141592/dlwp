@@ -38,3 +38,15 @@ text_vectorization = TextVectorization(
 )
 text_vectorization.adapt(dataset)
 
+print("Listing 12.5 Setting up a language modeling dataset")
+def prepare_lm_dataset(text_batch):
+    # Convert a bunch of texts to a batch of integer sequences.
+    vectorized_sequences = text_vectorization(text_batch)
+    # Create inputs by cutting off the last word of the sequences.
+    x = vectorized_sequences[:, :-1]
+    # Create targets by offsetting the sequences by 1.
+    y = vectorized_sequences[:, 1:]
+    return x, y
+
+lm_dataset = dataset.map(prepare_lm_dataset, num_parallel_calls=4)
+
