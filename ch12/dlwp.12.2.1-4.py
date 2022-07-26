@@ -12,9 +12,13 @@ print("Listing 12.9 Fetching the test image")
 from tensorflow import keras
 import matplotlib.pyplot as plt
 
+#base_image_path = keras.utils.get_file(
+#        "coast.jpg",
+#        origin="https://img-datasets.s3.amazonaws.com/coast.jpg")
+
 base_image_path = keras.utils.get_file(
-        "coast.jpg",
-        origin="https://img-datasets.s3.amazonaws.com/coast.jpg")
+        "image1.jpg",
+        origin="")
 
 plt.axis("off")
 plt.imshow(keras.utils.load_img(base_image_path))
@@ -24,14 +28,13 @@ print("Listing 12.10 Instantiating a pretrained InceptionV3 model")
 from tensorflow.keras.applications import inception_v3
 model = inception_v3.InceptionV3(weights="imagenet", include_top=False)
 model.summary()
-plt.show()
 
 print("Listing 12.11 Configuring the contribution of each layer to the DeepDream loss")
 # Layers for which we try to maximize activation, as
 # well as their weight in the total loss. You can tweak
 # these setting to obtain new visual effects.
 layer_settings = {
-        "mixed4": 10.0,
+        "mixed4": 1.0,
         "mixed5": 1.5,
         "mixed6": 2.0,
         "mixed7": 2.5,
