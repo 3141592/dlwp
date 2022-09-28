@@ -46,5 +46,38 @@ def deprocess_image(img):
 
 print("Listing 12.18 Using a pretrained VGG19 model to create a feature extractor")
 # Build a VGG19 model loaded with pretrained ImageNet weights.
+model = keras.applications.vgg19.VGG19(weights="imagenet", include_top=False)
+
+outputs_dict = dict([(layer.name, layer.output) for layer in model.layers])
+# Model that returns the activation values for every target layer (as a dict)
+feature_extractor = keras.Model(inputs=model.inputs, outputs=outputs_dict)
+
+print("Listing 12.19 Content loss")
+def content_loss(base_img, combination_img):
+    return tf.reduce_sum(tf.square(combination_img - base_img))
+
+print("Listing 12.20 Style loss")
+def gram_matrix(x):
+    x = tf.transpose(x, (2, 0, 1))
+    features = tf.reshape(x, (tf.shape(x)[0], -1))
+    gram = tf.matmul(features, tf.transpose(features))
+    return gram
+
+def style_loss(style_img, combination_img):
+    S = gram_matrix(style_img)
+    C = gram_matrix(combination_img)
+    channels = 3
+    size = img_height * img_width
+    return tf.reduce_sum(tf.square(S - C)) / (4.0 * (channels ** 2) * (size **2))
+
+print("Listing 12.21 Total variation loss")
+def total_variation_loss(x):
+    a = tf.square(
+            x[:, : img_height - 1, : img_width -1, :] - x[:, 1:, : img_width - 1, :]
+            )
+    b = tf.square(
+            x[:, : img_height - 1, : img_width -1, :] - x[:, : img_height - 1, 1:, :]
+            )
+    return tf.reduce_sum(tf.pow(a + b, 1.25))
 
 
