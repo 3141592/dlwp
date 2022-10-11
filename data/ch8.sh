@@ -1,4 +1,6 @@
 #!/bin/bash
+mkdir -p /root/src/data
+
 kaggle competitions download -c dogs-vs-cats
 mv dogs-vs-cats.zip /tmp/
 
