@@ -4,7 +4,7 @@ import os, pathlib
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 from tensorflow import keras
-model = keras.models.load_model("../ch8/convnet_from_scratch_with_augmentation.keras")
+model = keras.models.load_model("/root/src/dlwp/convnet_from_scratch_with_augmentation.keras")
 model.summary()
 
 #

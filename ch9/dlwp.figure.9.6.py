@@ -66,7 +66,7 @@ from tensorflow import keras
 from tensorflow.keras.utils import array_to_img
 import matplotlib.pyplot as plt
 
-model = keras.models.load_model("oxford.segmentation.50.keras")
+model = keras.models.load_model("oxford.segmentation.keras")
 
 i = 5
 test_image = val_input_imgs[i]
