@@ -49,6 +49,7 @@ class OneHotEncodingLayer(layers.experimental.preprocessing.PreprocessingLayer):
 # Using the Custom Layer
 # Now we can try the new layer out in a simple Neural Network.
 import pandas as pd
+import tensorflow as tf
 from tensorflow.keras import layers, models
 
 colors_df = pd.DataFrame(data=[[5,'yellow'],[1,'red'],[2,'blue'],[3,'green'],[4,'blue'],[7,'purple']], columns=['id', 'color'])
@@ -80,7 +81,7 @@ config = model.get_config()
 with tf.keras.utils.custom_object_scope({'OneHotEncodingLayer': OneHotEncodingLayer}):
   loaded_model = tf.keras.Model.from_config(config)
 
-predicted = new_model.predict([colors_df['id'], colors_df['color']])
+predicted = model.predict([colors_df['id'], colors_df['color']])
 print(predicted)
 # [[5. 0. 1. 0. 0. 0.]
 #  [1. 0. 0. 1. 0. 0.]

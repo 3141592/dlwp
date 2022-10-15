@@ -12,7 +12,7 @@ base_dir = pathlib.Path("/root/src/data/aclImdb")
 val_dir = base_dir / "val"
 train_dir = base_dir / "train"
 for category in ("neg", "pos"):
-    os.makedirs(val_dir / category)
+    os.makedirs(val_dir / category, exist_ok = True)
     files = os.listdir(train_dir / category)
     # Shuffle the list of training files using a seed,
     # to ensure we get the same validationset every time we run the code.
