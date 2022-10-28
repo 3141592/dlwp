@@ -4,6 +4,7 @@
 # Download the dataset from the Standford page of Andrew Maas
 curl -O https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz
 tar xvf aclImdb_v1.tar.gz -C /root/src/data/
+rm -rf /root/src/data/aclImdb/train/unsup
 rm aclImdb_v1.tar.gz
 
 # "11.3.4", p. 335, Download GloVe word embeddings

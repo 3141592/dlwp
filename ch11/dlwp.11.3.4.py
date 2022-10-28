@@ -72,7 +72,7 @@ embedding_matrix = np.zeros((max_tokens, embedding_dim))
 for word, i in word_index.items():
     if i < max_tokens:
         embedding_vector = embeddings_index.get(word)
-    # Fill emtry i in the matrix with the word vector for index i.
+    # Fill entry i in the matrix with the word vector for index i.
     # Words not foundin the embedding index will be all zeros.
     if embedding_vector is not None:
         embedding_matrix[i] = embedding_vector
