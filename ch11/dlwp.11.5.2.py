@@ -136,6 +136,7 @@ x = layers.Dropout(0.5)(x)
 target_next_step = layers.Dense(vocab_size, activation="softmax")(x)
 # End-to-end model: maps the source sentence and the target sentence to the target sentence one step in the future
 seq2seq_rnn = keras.Model([source, past_target], target_next_step)
+seq2seq_rnn.summary()
 
 print("Listing 11.30 Training our recurrent sequence-to-sequence model")
 seq2seq_rnn.compile(
