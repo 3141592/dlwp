@@ -35,10 +35,7 @@ print(random.choice(text_pairs))
 
 print("Listing 11.6 Vectorizing the English and Spanish text pairs")
 import tensorflow as tf
-from tensorflow import keras
 from tensorflow.keras import layers
-from tensorflow.keras.layers import Flatten   # to flatten the input data
-from tensorflow.keras.layers import Dense     # for the hidden layer
 import string
 import re
 
@@ -201,6 +198,9 @@ for inputs, targets in train_ds.take(1):
 
 print("Listing 11.28 GRU-based encoder")
 
+from tensorflow import keras
+from tensorflow.keras import layers
+
 embed_dim = 256
 latent_dim = 1024
 
@@ -233,7 +233,7 @@ seq2seq_rnn.compile(
         optimizer="rmsprop",
         loss="sparse_categorical_crossentropy",
         metrics=["accuracy"])
-#seq2seq_rnn.fit(train_ds, epochs=15, validation_data=val_ds)
+seq2seq_rnn.fit(train_ds, epochs=3, validation_data=val_ds)
 
 #print("Listing 11.31 Translating new sentences with our RNN encoder and decoder")
 import numpy as np
@@ -261,11 +261,11 @@ def decode_sequence(input_sentence):
     return decoded_sentence
 
 test_eng_texts = [pair[0] for pair in test_pairs]
-#for _ in range(20):
-#    input_sentence = random.choice(test_eng_texts)
-#    print("-")
-#    print(input_sentence)
-#    print(decode_sequence(input_sentence))
+for _ in range(20):
+    input_sentence = random.choice(test_eng_texts)
+    print("-")
+    print(input_sentence)
+    print(decode_sequence(input_sentence))
 
 print("Listing 11.33 The TransformerDecoder")
 class TransformerDecoder(layers.Layer):
@@ -301,45 +301,45 @@ class TransformerDecoder(layers.Layer):
             })
         return config
 
-print("Listing 11.34 TransformerDecoder method that generates a causal mask")
-def get_causal_attention_mask(self, inputs):
-    input_shape = tf.shape(inputs)
-    batch_size, sequence_length = input_shape[0], input_shape[1]
-    i = tf.range(sequence_length)[:, tf.newaxis]
-    j = tf.range(sequence_length)
-    mask = tf.cast(i >= j, dtype="int32")
-    mask = tf.reshape(mask, (1, input_shape[1], input_shape[1]))
-    mult = tf.concat(
-            [tf.expand_dims(batch_size, -1),
-             tf.constant([1, 1], dtype=tf.int32)], axis=0)
-    return tf.tile(mask, mult)
+    print("Listing 11.34 TransformerDecoder method that generates a causal mask")
+    def get_causal_attention_mask(self, inputs):
+        input_shape = tf.shape(inputs)
+        batch_size, sequence_length = input_shape[0], input_shape[1]
+        i = tf.range(sequence_length)[:, tf.newaxis]
+        j = tf.range(sequence_length)
+        mask = tf.cast(i >= j, dtype="int32")
+        mask = tf.reshape(mask, (1, input_shape[1], input_shape[1]))
+        mult = tf.concat(
+                [tf.expand_dims(batch_size, -1),
+                 tf.constant([1, 1], dtype=tf.int32)], axis=0)
+        return tf.tile(mask, mult)
 
-print("Listing 11.35 The forward pass of the TransformerDecoder")
-def call(self, inputs, encoder_outputs, mask=None):
-    # Retrieve the causal mask
-    causal_mask = self.get_causal_attention_mask(inputs)
-    # Prepare input mask
-    if mask is not None:
-        padding_mask = tf.cast(
-                mask[:, tf.newaxis, :], dtype="int32")
-        # Merge the two masks together
-        padding_mask = tf.minimum(padding_mask, causal_mask)
-    attention_output_1 = self.attention_1(
-        query=inputs,
-        value=inputs,
-        key=inputs,
-        # Pass causal mask to first attention layer
-        attention_mask=causal_mask)
-    attention_output_1 = self.layernorm_1(inputs + attention_output_1)
-    attention_output_2 = self.attention_2(
-        query=attention_output_1,
-        value=encoder_outputs,
-        key=encoder_outputs,
-        # Pass causal mask to first attention layer
-        attention_mask=padding_mask)
-    attention_output_2 = self.layernorm_2(attention_output_1 + attention_output_2)
-    proj_output = self.dense_proj(attention_output_2)
-    return self.layernorm_3(attention_output_2 + proj_output)
+    print("Listing 11.35 The forward pass of the TransformerDecoder")
+    def call(self, inputs, encoder_outputs, mask=None):
+        # Retrieve the causal mask
+        causal_mask = self.get_causal_attention_mask(inputs)
+        # Prepare input mask
+        if mask is not None:
+            padding_mask = tf.cast(
+                    mask[:, tf.newaxis, :], dtype="int32")
+            # Merge the two masks together
+            padding_mask = tf.minimum(padding_mask, causal_mask)
+        attention_output_1 = self.attention_1(
+            query=inputs,
+            value=inputs,
+            key=inputs,
+            # Pass causal mask to first attention layer
+            attention_mask=causal_mask)
+        attention_output_1 = self.layernorm_1(inputs + attention_output_1)
+        attention_output_2 = self.attention_2(
+            query=attention_output_1,
+            value=encoder_outputs,
+            key=encoder_outputs,
+            # Pass causal mask to first attention layer
+            attention_mask=padding_mask)
+        attention_output_2 = self.layernorm_2(attention_output_1 + attention_output_2)
+        proj_output = self.dense_proj(attention_output_2)
+        return self.layernorm_3(attention_output_2 + proj_output)
 
 print("11.36 End-to-end Transformer")
 embed_dim = 256
@@ -367,4 +367,4 @@ transformer.compile(
         loss="sparse_categorical_crossentropy",
         metrics=["accuracy"])
 transformer.fit(train_ds, epochs=3, validation_data=val_ds)
-#transformer.summary()
+transformer.summary()
