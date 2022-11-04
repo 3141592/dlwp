@@ -243,6 +243,6 @@ text_gen_callback = TextGenerator(
         temperatures=(0.2, 0.5, 0.7, 1., 1.5))
 
 print("Listing 12.8 Fitting the language model")
-model.fit(lm_dataset, epochs=200, callbacks=[text_gen_callback])
+model.fit(lm_dataset, epochs=20, callbacks=[text_gen_callback])
 
 
