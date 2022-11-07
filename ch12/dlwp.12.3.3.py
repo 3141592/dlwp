@@ -109,7 +109,7 @@ def compute_loss(combination_image, base_image, style_reference_image):
     layer_features = features[content_layer_name]
     base_image_features = layer_features[0, :, :, :]
     combination_features = layer_features[2, :, :, :]
-    loss = loss + content_weight + content_loss(
+    loss = loss + content_weight * content_loss(
             base_image_features, combination_features
             )
     # Add the style loss.
@@ -119,7 +119,7 @@ def compute_loss(combination_image, base_image, style_reference_image):
         combination_features = layer_features[2, :, :, :]
         style_loss_value = style_loss(
                 style_reference_features, combination_features)
-        loss += (style_weight / len(style_layer_names)) + style_loss_value
+        loss += (style_weight / len(style_layer_names)) * style_loss_value
 
     # Add the total variation loss
     loss += total_variation_weight * total_variation_loss(combination_image)
@@ -148,7 +148,7 @@ style_reference_image = preprocess_image(style_reference_image_path)
 # Use a Variable to store the combination image since we'll be updating it during training.
 combination_image = tf.Variable(preprocess_image(base_image_path))
 
-iterations = 4000
+iterations = 10000
 for i in range(1, iterations + 1):
     loss, grads = compute_loss_and_grads(
             combination_image, base_image, style_reference_image
