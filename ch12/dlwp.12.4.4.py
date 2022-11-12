@@ -82,10 +82,12 @@ class VAE(keras.Model):
             # (axes 1 and 2) and take its mean over the batch dimension.
             reconstruction_loss = tf.reduce_mean(
                     tf.reduce_sum(
-                        keras.losses.binary_cross_entropy(data, reconstruction), axis=(1, 2)
+                        keras.losses.binary_crossentropy(data, reconstruction), axis=(1, 2)
                         )
                     )
-            kl_loss = reconstruction_loss + tf.reduce_mean(kl_loss)
+            # Add the regularization term (Kullback-Leibler divergence).
+            kl_loss = -0.5 * (1 + z_log_var - tf.square(z_mean) - tf.exp(z_log_var))
+            total_loss = reconstruction_loss + tf.reduce_mean(kl_loss)
             grads = tape.gradient(total_loss, self.trainable_weights)
             self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
             self.total_loss_tracker.update_state(total_loss)
@@ -109,7 +111,45 @@ mnist_digits = np.expand_dims(mnist_digits, -1).astype("float32") / 255
 vae = VAE(encoder, decoder)
 # Note that we don't pass a loss argument in compile(), since the loss is already part of the train_step().
 vae.compile(optimizer=keras.optimizers.Adam(), run_eagerly=True)
+# Note that we don't pass targets in fit(), since train_step doesn't expect any.
+vae.fit(mnist_digits, epochs=30, batch_size=128)
 
+print("Listing 12.29 Sampling a grid of images from the 2D latent space")
+import matplotlib.pyplot as plt
+
+# We'll display a grid of 30 x 30 digits (900 digits total).
+n = 30
+digit_size = 28
+figure = np.zeros((digit_size * n, digit_size * n))
+
+# Sample points linearly on a 2D grid.
+grid_x = np.linspace(-1, 1, n)
+grid_y = np.linspace(-1, 1, n)[::-1]
+
+# Iterate over grid locations.
+for i, yi in enumerate(grid_y):
+    for j, xi in enumerate(grid_x):
+        # For each location, sample a digit and add it to our figure.
+        z_sample = np.array([[xi, yi]])
+        x_decoded = vae.decoder.predict(z_sample)
+        digit = x_decoded[0].reshape(digit_size, digit_size)
+        figure[i * digit_size : (i + 1) * digit_size,
+               j * digit_size : (j + 1) * digit_size,
+               ] = digit
+
+plt.figure(figsize=(15, 15))
+start_range = digit_size // 2
+end_range = n * digit_size + start_range
+pixel_range = np.arange(start_range, end_range, digit_size)
+sample_range_x = np.round(grid_x, 1)
+sample_range_y = np.round(grid_y, 1)
+plt.xticks(pixel_range, sample_range_x)
+plt.yticks(pixel_range, sample_range_y)
+plt.xlabel("z[0]")
+plt.ylabel("z[1]")
+plt.axis("off")
+plt.imshow(figure, cmap="Greys_r")
+plt.show()
 
 
 
