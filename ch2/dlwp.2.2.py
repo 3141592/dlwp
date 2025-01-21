@@ -1,6 +1,6 @@
 # Suppress warnings
 import os, pathlib
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # Loading the MNIST dataset in Keras
 from tensorflow.keras.datasets import mnist

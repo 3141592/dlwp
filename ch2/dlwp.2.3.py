@@ -2,9 +2,9 @@
 import os, pathlib
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-# 2.3 The gears of neural networks: Tensor operations
+print("# 2.3 The gears of neural networks: Tensor operations")
 
-# 2.3.2 Broadcasting
+print("# 2.3.2 Broadcasting")
 import numpy as np
 X = np.random.random((32,10))
 y = np.random.random(10,)
@@ -34,7 +34,7 @@ print(z)
 z = X + y
 print(z)
 
-# 2.3.3 Tensor product
+print("# 2.3.3 Tensor product")
 import numpy as np
 X = np.random.random((5,10))
 x = np.random.random(5,)
@@ -67,7 +67,7 @@ z2 = np.dot(y, X)
 print(f"z: {z}")
 print(f"z2: {z2}")
 
-# 2.3.4 Tensor reshaping
+print("# 2.3.4 Tensor reshaping")
 import numpy as np
 x = np.array([[0., 1.],
              [2., 3.],
@@ -92,7 +92,7 @@ print(f"x ndim: {x.ndim}")
 
 # numpy.gradient
 import numpy as np
-y = np.array([1, 2, 4, 7, 11, 16], dtype=np.float)
+y = np.array([1, 2, 4, 7, 11, 16], dtype=float)
 j = np.gradient(y)
 print(j)
 
